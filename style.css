@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+#playerForm, #paymentPage, #tournamentDetails, .content , .qr-code #loader{ display: none; }
+*{ overflow-x: hidden; }
+button { cursor: pointer; font-family: "Open Sans", serif; }
+body { background: #0a0a0a; color: #fff; margin: 0; padding: 0; font-family: "Open Sans", serif;  }
+.header{ background: #1f1f1f; padding: 10px; }
+.header > img{ width: 40px; height: 40px; border-radius: 125px; }
+.text { color: #fff; }
+.top-button > button , .button-group > button { background: transparent; color: #fff; border: none; font-size: 21px; border-bottom: 1px solid red; margin: 10px 0px 10px 10px; text-transform: uppercase; }
+td > span { color: #fff; }
+.player-details { color: #fff; display: flex; align-items: start; flex-direction: column; width: 70%; padding: 20px; border-radius: 8px; background: #1f1f1f; }
+.player-details input { padding: 8px; border: 1px solid #ff2d2d; background: transparent; border-radius: 3px; margin: 10px 0px 0px 0px; outline: none; color: #fff; padding-left: 8px;  width: 16.8pc;}
+#tournamentDetails { display: flex; flex-direction: column; align-items: center; }
+.tounamet-bhai { margin-bottom: 20px; display: flex; align-items: center; }
+#tournamentImage { width: 80px; border-radius: 125px; }
+tr{ background: #1f1f1f; }
+#playerContainer { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+#addPlayerButton , #nextButton { margin: 0px 0px 0px 38px; padding: 5px; background: transparent; border: none; font-size: 17px; color: #fff; border-bottom: 1px solid #1f1f; }
+.removePlayerButton { padding: 6px; margin: 10px 0px 0px 0px; background: transparent; border: none; border-bottom: 1px solid #fff; color: red; }
+#playerForm { margin-bottom: 20px; }
+#nextButton { margin: 0px; border-bottom: 1px solid; }
+#paymentPage { flex-direction: column; align-items: center; justify-content: center; }
+#uploadScreenshot { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+#submitButton { width: 150px; margin: 10px; background: #1f1f1f; color: #fff; padding: 5px; border: none; }

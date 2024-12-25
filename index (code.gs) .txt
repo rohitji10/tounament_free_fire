@@ -1,0 +1,61 @@
+﻿function doGet() {
+    const sheet = SpreadsheetApp.openById('18y5qy5tcC6JBBzuxmKD367NlGaaFG3UldY5OIDV9DVw').getSheetByName('Sheet1');
+    const data = {
+        imageUrl: sheet.getRange('A2').getValue(),
+        name: sheet.getRange('B2').getValue(),
+        firstPrize: sheet.getRange('C2').getValue(),
+        secondPrize: sheet.getRange('D2').getValue(),
+        thirdPrize: sheet.getRange('E2').getValue(),
+        amount: sheet.getRange('F2').getValue()
+    };
+    return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+    const sheet = SpreadsheetApp.openById('18y5qy5tcC6JBBzuxmKD367NlGaaFG3UldY5OIDV9DVw').getSheetByName('Sheet1');
+    const playerDetails = e.parameter.playerDetails;
+    const totalAmount = e.parameter.totalAmount;
+    const imageUrl = e.parameter.imageUrl;
+    const targetCell = sheet.getRange(2, 7);
+    const existingContent = targetCell.getValue();
+    const teams = existingContent ? existingContent.split(/\n\n/) : [];
+    const maxTeams = 2;
+
+    if (teams.length >= maxTeams) {
+        return ContentService.createTextOutput(JSON.stringify({ result: 'error', message: `Maximum team limit of ${maxTeams} reached.` }))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const newTeamDetails = `Team ${teams.length + 1}:\n${playerDetails}\nImage URL: ${imageUrl}\nTotal Amount: ₹${totalAmount}`;
+    const updatedContent = existingContent ? `${existingContent}\n\n${newTeamDetails}` : newTeamDetails;
+    targetCell.setValue(updatedContent);
+
+    const emailRecipient = "createprincemahto@gmail.com";
+    const emailSubject = "New Team Details Submitted";
+
+    const htmlBody = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+            <h2 style="color: #333;">New Team Submitted</h2>
+            <p><strong>Team ${teams.length + 1} Details:</strong></p>
+            <ul>
+                <li><strong>Player Details:</strong> ${playerDetails}</li>
+                <li><strong>Total Amount:</strong> ₹${totalAmount}</li>
+            </ul>
+            <p>Payment Screenshot:</p>
+            <img src="${imageUrl}" alt="Team Image" style="max-width: 100%; height: auto;"/>
+        </div>
+    `;
+
+    GmailApp.sendEmail(emailRecipient, emailSubject, "", {
+        htmlBody: htmlBody
+    });
+
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function getCurrentTeamsCount() {
+    const sheet = SpreadsheetApp.openById('18y5qy5tcC6JBBzuxmKD367NlGaaFG3UldY5OIDV9DVw').getSheetByName('Sheet1');
+    const existingContent = sheet.getRange(2, 7).getValue();
+    const teams = existingContent ? existingContent.split(/\n\n/) : [];
+    return teams.length;
+}

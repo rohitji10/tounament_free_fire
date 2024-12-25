@@ -1,0 +1,338 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://kit.fontawesome.com/8aa17a250d.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.0/qrious.min.js"></script>
+<link rel="stylesheet" href="style.css">
+<div id="menu-overlay"></div>
+<div class="header">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2KG1pkLFhuqt62RqTW7Tf6x4T1-Cszsp8pQ&s" onclick="reload()">
+</div>
+<div class="top-button">
+    <button onclick="showDiv('div1')">Clash Squad</button>
+</div>
+<div id="div1" class="content">
+    <div class="button-group">
+        <button onclick="showDivContent('div4')" class="div-btn">Paid</button>
+    </div>
+    <div id="div4" class="div-content" style="display: block;">
+        <div id="loader">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div id="tournamentDetails">
+            <div class="tounamet-bhai">
+                <img id="tournamentImage" src="" alt="Tournament Image">
+                <div class="text">
+                    <p>Name: <span id="tournamentName"></span></p>
+                    <p>Registration Amount: <span id="registrationAmount"></span></p>
+                </div>
+            </div>
+            <table class="prize-table">
+                <tr>
+                    <th>First Prize</th>
+                    <th>Second Prize</th>
+                    <th>Third Prize</th>
+                </tr>
+                <tr>
+                    <td><span id="firstPrize"></span></td>
+                    <td><span id="secondPrize"></span></td>
+                    <td><span id="thirdPrize"></span></td>
+                </tr>
+            </table>
+            <button id="joinButton">Join</button>
+        </div>
+        <div id="playerForm">
+            <div id="playerContainer">
+                <div class="player-details" id="player1">
+                    <label for="player1Name">Player 1 Name:</label>
+                    <input type="text" id="player1Name" required><br>
+                    <label for="player1UID">Player 1 UID:</label>
+                    <input type="number" id="player1UID" required>
+                    <label for="whatsappNumber">WhatsApp Number:</label>
+                    <input type="text" id="whatsappNumber" required>
+                </div>
+            </div>
+            <button id="addPlayerButton">Add Player</button>
+            <button id="nextButton">Next</button>
+        </div>
+        <div id="paymentPage">
+            <div id="totalAmount">Total Amount: ₹150</div>
+            <div class="qr-code" id="qrCodeContainer">
+                <img id="qrCodeImage" src="" alt="UPI QR Code">
+            </div>
+            <div id="uploadScreenshot">
+                <label for="screenshot">Upload Screenshot (required):</label>
+                <input type="file" id="screenshot" accept="image/*" required>
+            </div>
+            <button id="submitButton">Submit</button>
+        </div>
+    </div>
+</div>
+<div id="div2" class="content" style="display: none;">
+    <div class="button-group">
+        <button onclick="showDivContent('div6')" class="div-btn">Paid</button>
+    </div>
+    <div id="div6" class="div-content" style="display: block;">This is Div 6.</div>
+</div>
+<div id="div3" class="content" style="display: none;">
+    <div class="button-group">
+        <button onclick="showDivContent('div8')" class="div-btn">Paid</button>
+    </div>
+    <div id="div8" class="div-content" style="display: block;">This is Div 8.</div>
+</div>
+<script>
+    function toggleMenu() {
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        if (sideMenu.style.width === '160px') {
+            sideMenu.style.width = '0';
+            menuOverlay.style.display = 'none';
+        } else {
+            sideMenu.style.width = '160px';
+            menuOverlay.style.display = 'block';
+        }
+    }
+    document.getElementById('menu-overlay').onclick = function () {
+        toggleMenu();
+    };
+    function reload() {
+        location.reload();
+    }
+    function showDiv(divId) {
+        const allDivs = document.querySelectorAll('.content');
+        allDivs.forEach(div => {
+            div.style.display = 'none';
+        });
+        document.getElementById(divId).style.display = 'block';
+        const innerContents = document.querySelectorAll(`#${divId} .div-content`);
+        innerContents.forEach(innerDiv => {
+            innerDiv.style.display = 'none';
+        });
+        if (innerContents.length > 0) {
+            innerContents[0].style.display = 'block';
+        }
+    }
+    function showDivContent(contentId) {
+        const allContentDivs = document.querySelectorAll('.div-content');
+        allContentDivs.forEach(div => {
+            div.style.display = 'none';
+        });
+        document.getElementById(contentId).style.display = 'block';
+    }
+    let playerCount = 1;
+    const maxPlayers = 4;
+    const upiId = "9759532261@pthdfc";
+    async function fetchTournamentDetails() {
+        showLoader();
+        try {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbwYoIcqfP0cvPgaialrXiay_XlOWIOHOq6xOJ5imxHBiRMBnxwyNd7Slx8zzcPdOKAG/exec');
+            const data = await response.json();
+            document.getElementById('tournamentImage').src = data.imageUrl;
+            document.getElementById('tournamentName').textContent = data.name;
+            document.getElementById('firstPrize').textContent = data.firstPrize;
+            document.getElementById('secondPrize').textContent = data.secondPrize;
+            document.getElementById('thirdPrize').textContent = data.thirdPrize;
+            document.getElementById('registrationAmount').textContent = `₹${data.amount}`;
+            document.getElementById('tournamentDetails').style.display = 'flex';
+        } catch (error) {
+            alert('Error fetching tournament details: ' + error.message);
+        } finally {
+            hideLoader();
+        }
+    }
+    async function updateTotalAmountAndQRCode() {
+        const totalAmount = playerCount * parseInt(document.getElementById('registrationAmount').textContent.replace('₹', ''));
+        document.getElementById('totalAmount').textContent = `Total Amount: ₹${totalAmount}`;
+        const upiUrl = `upi://pay?pa=${upiId}&pn=Battle_Zone&mc=YourMC&tid=YourTID&am=${totalAmount}&cu=INR&note=Tournament Registration`;
+        document.getElementById('qrCodeContainer').style.display = 'block';
+        const qrCode = new QRious({
+            element: document.getElementById('qrCodeImage'),
+            value: upiUrl,
+            size: 200
+        });
+    }
+    window.onload = function() {
+        fetchTournamentDetails();
+    };
+    document.getElementById('joinButton').addEventListener('click', function () {
+        document.getElementById('playerForm').style.display = 'block';
+        document.getElementById('nextButton').disabled = false;
+        updateTotalAmountAndQRCode();
+    });
+    document.getElementById('addPlayerButton').addEventListener('click', function () {
+        if (playerCount < maxPlayers) {
+            playerCount++;
+            const playerContainer = document.getElementById('playerContainer');
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-details';
+            playerDiv.id = `player${playerCount}`;
+            playerDiv.innerHTML = `
+                <label for="player${playerCount}Name">Player ${playerCount} Name:</label>
+                <input type="text" id="player${playerCount}Name" required><br>
+                <label for="player${playerCount}UID">Player ${playerCount} UID:</label>
+                <input type="number" id="player${playerCount}UID" required>
+                <button class="removePlayerButton" onclick="removePlayer(${playerCount})">Remove Player</button>
+            `;
+            playerContainer.appendChild(playerDiv);
+            updateTotalAmountAndQRCode();
+        } else {
+            alert("Maximum number of players reached (4).");
+        }
+    });
+    function removePlayer(playerNumber) {
+        const playerDiv = document.getElementById(`player${playerNumber}`);
+        if (playerDiv) {
+            playerDiv.remove();
+            playerCount--;
+            const playerContainer = document.getElementById('playerContainer');
+            const playerDetailsDivs = playerContainer.getElementsByClassName('player-details');
+            playerCount = playerDetailsDivs.length;
+            updateTotalAmountAndQRCode();
+        }
+    }
+    document.getElementById('nextButton').addEventListener('click', function () {
+        const playerDetailsValid = Array.from(document.querySelectorAll('.player-details input')).every(input => input.value.trim() !== '');
+        if (!playerDetailsValid) {
+            alert('Please fill in all player details.');
+            return;
+        }
+        document.getElementById('playerForm').style.display = 'none';
+        document.getElementById('paymentPage').style.display = 'flex';
+    });
+    document.getElementById('submitButton').addEventListener('click', async function () {
+        showLoader();
+        const playerDetails = [];
+        for (let i = 1; i <= playerCount; i++) {
+            const name = document.getElementById(`player${i}Name`).value;
+            const uid = document.getElementById(`player${i}UID`).value;
+            playerDetails.push(`Player ${i}: ${name}, UID: ${uid}`);
+        }
+        const whatsappNumber = document.getElementById('whatsappNumber').value;
+        playerDetails.push(`WhatsApp Number: ${whatsappNumber}`);
+        const totalAmount = document.getElementById('totalAmount').textContent.replace('Total Amount: ₹', '');
+        const screenshot = document.getElementById('screenshot').files[0];
+        if (screenshot) {
+            const reader = new FileReader();
+            reader.onloadend = async function () {
+                try {
+                    const base64Image = reader.result.split(',')[1];
+                    const imgbbResponse = await fetch('https://api.imgbb.com/1/upload', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            key: 'b43a00e4bba98e2def07f83ed693adc8',
+                            image: base64Image
+                        })
+                    });
+                    const imgbbData = await imgbbResponse.json();
+                    if (imgbbData.success) {
+                        const imageUrl = imgbbData.data.url;
+                        const response = await fetch('https://script.google.com/macros/s/AKfycbwYoIcqfP0cvPgaialrXiay_XlOWIOHOq6xOJ5imxHBiRMBnxwyNd7Slx8zzcPdOKAG/exec', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `playerDetails=${encodeURIComponent(playerDetails.join('\n'))}&totalAmount=${totalAmount}&imageUrl=${encodeURIComponent(imageUrl)}`,
+                        });
+                        const data = await response.json();
+                        if (data.result === 'success') {
+                            alert('Registration successful!');
+                            location.reload();
+                        } else {
+                            alert(data.message || 'Registration failed!');
+                        }
+                    } else {
+                        alert('Image upload failed: ' + imgbbData.message);
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                    hideLoader();
+                }
+            };
+            reader.readAsDataURL(screenshot);
+        } else {
+            alert('Please upload a screenshot.');
+            hideLoader();
+        }
+    });
+    function showLoader() {
+        document.getElementById('loader').style.display = 'block';
+    }
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+</script>
+<style>
+    #playerForm, #paymentPage, #tournamentDetails {
+        display: none;
+        margin-top: 20px;
+    }
+    .player-details {
+        margin-bottom: 10px;
+    }
+    .qr-code {
+        display: none;
+        margin-top: 10px;
+    }
+    #totalAmount {
+        font-weight: bold;
+        margin-top: 10px;
+        color: #fff;
+    }
+    #loader {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 24px;
+    }
+    .dot {
+        height: 15px;
+        width: 15px;
+        margin: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        background-color: #FFF;
+        animation: bounce 0.6s infinite alternate;
+    }
+    .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes bounce {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-15px); }
+    }
+    .text {
+        margin-left: 20%;
+        font-size: 17px;
+    }
+    #joinButton {
+        margin-top: 10px;
+        padding: 6px;
+        width: 82%;
+        background: #e35050;
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+    }
+    .prize-table th, .prize-table td {
+        padding: 8px;
+        text-align: center;
+    }
+    .prize-table th {
+        color: #fff;
+        font-weight: bold;
+    }
+    #joinButton { text-transform: uppercase; }
+</style>
+<script>
+    window.onload = function() {
+        showDiv('div1');
+        fetchTournamentDetails();
+    };
+</script>
